@@ -27,10 +27,19 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         }
     }
 
-    [HttpGet("test")]
+    [HttpGet]
+    [Route("api/test")]
     public IActionResult Test()
     {
-        var secret = Environment.GetEnvironmentVariable("GOOGLE_SECRET");
-        return Ok(secret);
+        try
+        {
+            var secret = Environment.GetEnvironmentVariable("GOOGLE_SECRET");
+            return Ok(secret);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
