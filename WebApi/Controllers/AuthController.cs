@@ -30,7 +30,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
     [HttpGet("test")]
     public IActionResult Test()
     {
-        var secret = googleAuthConfig.Value.ClientSecret;
+        var secret = Environment.GetEnvironmentVariable("GOOGLE_SECRET");
         return Ok(secret);
     }
 }
