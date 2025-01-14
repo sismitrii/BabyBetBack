@@ -34,8 +34,8 @@ public class BaseController : ControllerBase
         response.Errors = new List<string>() { $"Error: {(ex?.InnerException?.Message ?? ex.Message)} --> {ex?.StackTrace}" };
         return BadRequest(response);
 #else
-             rsp.Errors = new List<string>() { "An error occurred while processing your request!"};
-             return BadRequest(rsp);
+             response.Errors = new List<string>() { "An error occurred while processing your request!"};
+             return BadRequest(response);
 #endif
     }
 }
