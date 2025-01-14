@@ -7,3 +7,6 @@ startCommand = "dotnet WebApi.dll"
 restartPolicyType = "always"
 healthcheckPath = "/health"
 
+[[volumes]]
+mountPath = "/app/data"
+

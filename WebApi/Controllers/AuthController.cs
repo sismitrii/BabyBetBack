@@ -1,16 +1,18 @@
 using BabyBetBack.Auth;
+using BabyBetBack.Configuration;
 using BabyBetBack.Utils;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace BabyBetBack.Controllers;
 
 [ApiController]
-[Route("api/auth")]
-public class AuthController(IAuthService authService) : BaseController
+public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig> googleAuthConfig) : BaseController
 {
     private readonly IAuthService _authService = authService;
     [HttpPost]
+    [Route("api/auth")]
     [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
     public async Task<IActionResult> GoogleSignIn(GoogleSignInVM model)
     {
@@ -23,5 +25,12 @@ public class AuthController(IAuthService authService) : BaseController
         {
             return HandleError(ex);
         }
+    }
+
+    [HttpGet("test")]
+    public IActionResult Test()
+    {
+        var secret = googleAuthConfig.Value.ClientSecret;
+        return Ok(secret);
     }
 }
