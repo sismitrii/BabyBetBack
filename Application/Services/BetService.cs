@@ -67,6 +67,11 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
         return betsDto;
     }
 
+    public async Task<IEnumerable<BetGame>> GetUser()
+    {
+        return await unitOfWork.BetGameRepository.GetAllAsync();
+    }
+
     public async Task DeleteAsync(Guid betId)
     {
         await unitOfWork.BetRepository.DeleteByIdAsync(betId);

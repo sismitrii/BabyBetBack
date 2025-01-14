@@ -61,4 +61,21 @@ public class BetController(IBetService betService) : ControllerBase
         
         return Ok();
     }
+    
+    
+    [HttpGet]
+    [Route("test")]
+    public IActionResult Test()
+    {
+        try
+        {
+            var betGame = betService.GetUser();
+            return Ok(betGame);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using Application.Services;
 using BabyBetBack.Auth;
 using BabyBetBack.Configuration;
 using BabyBetBack.Utils;
@@ -24,22 +25,6 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         catch (Exception ex)
         {
             return HandleError(ex);
-        }
-    }
-
-    [HttpGet]
-    [Route("api/test")]
-    public IActionResult Test()
-    {
-        try
-        {
-            var secret = Environment.GetEnvironmentVariable("GOOGLE_SECRET");
-            return Ok(secret ?? "oops");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
         }
     }
 }

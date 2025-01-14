@@ -1,6 +1,7 @@
 using Application.Dtos;
 using Application.Dtos.In;
 using Application.Dtos.Out;
+using Core.Entities;
 
 namespace Application.Services;
 
@@ -10,6 +11,8 @@ public interface IBetService
     Task<BetDto> FindByIdAsync(Guid betId);
     Task<BetDto?> FindBetOfUserAsync(string? getNameIdentifierId);
     Task<IEnumerable<BetDto>> GetAllForAGameAsync(Guid betGameId);
+
+    Task<IEnumerable<BetGame>> GetUser();
     
     Task DeleteAsync(Guid betId);
 }
