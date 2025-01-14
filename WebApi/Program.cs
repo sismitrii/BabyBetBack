@@ -150,7 +150,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BetDbContext>();
     db.Database.EnsureCreated(); // Crée la base si elle n'existe pas
-    db.Database.Migrate(); // Applique les migrations si nécessaire
+    //db.Database.Migrate(); // Applique les migrations si nécessaire
 }
 app.Run();
 
