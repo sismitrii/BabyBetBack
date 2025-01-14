@@ -100,7 +100,8 @@ builder.Services.Configure<GoogleAuthConfig>(builder.Configuration.GetSection("G
 var jwtSection = builder.Configuration.GetSection("JWT");
 builder.Services.Configure<JwtConfiguration>(jwtSection);
 var jwtConfig = jwtSection.Get<JwtConfiguration>();
-var secret = Encoding.ASCII.GetBytes(jwtConfig.Secret);
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+var secret = Encoding.ASCII.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>
 {

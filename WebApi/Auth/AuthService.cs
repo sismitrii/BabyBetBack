@@ -44,7 +44,8 @@ public class AuthService(
     private string CreateJwtToken(User user)
     { 
 
-        var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+        var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+        var key = Encoding.ASCII.GetBytes(secret);
 
         var userClaims = BuildUserClaims(user);
 

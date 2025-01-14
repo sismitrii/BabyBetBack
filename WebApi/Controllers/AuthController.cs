@@ -34,7 +34,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         try
         {
             var secret = Environment.GetEnvironmentVariable("GOOGLE_SECRET");
-            return Ok(secret);
+            return Ok(secret ?? "oops");
         }
         catch (Exception e)
         {
