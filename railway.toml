@@ -3,7 +3,7 @@ builder = "dockerfile"
 dockerfilePath = "./WebApi/Dockerfile"
 
 [deploy]
-startCommand = "WebApi.dll"
+startCommand = "dotnet WebApi.dll"
 restartPolicyType = "always"
 healthcheckPath = "/health"
 
