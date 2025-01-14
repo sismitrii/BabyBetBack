@@ -3,7 +3,7 @@ builder = "dockerfile"
 dockerfilePath = "./WebApi/Dockerfile"
 
 [deploy]
-startCommand = "./WebApi"
+startCommand = "./BabyBetBack/WebApi"
 restartPolicyType = "always"
 healthcheckPath = "/health"
 
