@@ -1,0 +1,9 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./WebApi/Dockerfile"
+
+[deploy]
+startCommand = "./WebApi"
+restartPolicyType = "always"
+healthcheckPath = "/health"
+

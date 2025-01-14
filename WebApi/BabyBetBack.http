@@ -1,0 +1,6 @@
+@BabyBetBack_HostAddress = http://localhost:5216
+
+GET {{BabyBetBack_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
