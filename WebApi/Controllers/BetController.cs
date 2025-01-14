@@ -10,7 +10,6 @@ namespace BabyBetBack.Controllers;
 
 [ApiController]
 [Route("api/bet")]
-[Authorize]
 public class BetController(IBetService betService) : ControllerBase
 {
     [HttpPost]
