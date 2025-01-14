@@ -149,7 +149,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BetDbContext>();
-    db.Database.Migrate(); // Applique les migrations si nécessaire
+    //db.Database.Migrate(); // Applique les migrations si nécessaire
 }
 app.Run();
 
