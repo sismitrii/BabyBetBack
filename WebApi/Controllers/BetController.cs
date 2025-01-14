@@ -64,16 +64,15 @@ public class BetController(IBetService betService) : ControllerBase
     
     [HttpGet]
     [Route("test")]
-    public IActionResult Test()
+    public async Task<IActionResult> Test()
     {
         try
         {
-            var betGame = betService.GetUser();
+            var betGame = await betService.GetUser();
             return Ok(betGame);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return BadRequest(e.Message);
         }
     }
