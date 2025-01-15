@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             // DO NOT TOUCH Except for deployment
-            policy.WithOrigins("http://localhost:4200", "https://baby-bet.vercel.app")
+            policy.WithOrigins("https://baby-bet.vercel.app")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
