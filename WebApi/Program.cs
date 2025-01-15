@@ -13,8 +13,14 @@ using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls("http://*:" + port);
+DotNetEnv.Env.Load();
+
+if (!builder.Environment.IsDevelopment())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.UseUrls("http://*:" + port);
+}
+
 
 builder.Services.AddHealthChecks();
 
@@ -29,9 +35,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularLocalhost",
         policy =>
         {
-            policy.AllowAnyOrigin()
+            // DO NOT TOUCH Except for deployment
+            policy.WithOrigins("http://localhost:4200")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -134,15 +142,19 @@ builder.Services.AddDbContext<BetDbContext>(opt =>
 var app = builder.Build();
 
 app.UseHealthChecks("/health");
+
+app.UseCors("AllowAngularLocalhost");
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 // Configure the HTTP request pipeline.
     app.UseSwagger();
     app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAngularLocalhost");
+
+
 
 app.MapControllers();
 

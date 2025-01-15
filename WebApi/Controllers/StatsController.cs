@@ -14,6 +14,7 @@ public class StatsController(IStatsService statsService) : ControllerBase
     [Route("{betGameId:guid}")]
     public async Task<ActionResult<StatsDto>> GetStatsAsync(Guid betGameId)
     {
+        
         var bet = await statsService.GetStatsAsync(betGameId);
         
         return Ok(bet);
