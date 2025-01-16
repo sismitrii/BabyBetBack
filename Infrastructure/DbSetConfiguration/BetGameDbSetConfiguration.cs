@@ -14,5 +14,12 @@ public class BetGameDbSetConfiguration : BaseEntityDbSetConfiguration<BetGame>
             .HasMany(x => x.Bets)
             .WithOne()
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasOne(x => x.Result)
+            .WithOne()
+            .HasForeignKey<Result>(x => x.BetGameId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
     }
 }
