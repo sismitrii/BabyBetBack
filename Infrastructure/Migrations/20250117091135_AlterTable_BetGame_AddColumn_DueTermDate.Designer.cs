@@ -3,6 +3,7 @@ using System;
 using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(BetDbContext))]
-    partial class BetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117091135_AlterTable_BetGame_AddColumn_DueTermDate")]
+    partial class AlterTable_BetGame_AddColumn_DueTermDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -69,9 +72,6 @@ namespace DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ClosingDate")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("DueTermDate")
                         .HasColumnType("TEXT");
 
@@ -87,7 +87,6 @@ namespace DAL.Migrations
                         new
                         {
                             Id = new Guid("f570d572-7098-464c-8a2f-8cc3ed486c0a"),
-                            ClosingDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DueTermDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Initial"
                         });
