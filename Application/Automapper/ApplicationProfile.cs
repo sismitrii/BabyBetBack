@@ -17,6 +17,9 @@ public class ApplicationProfile : Profile
         CreateMap<Bet, BetDto>()
             .ReverseMap();
         
+        CreateMap<BetGame, BetGameDto>()
+            .ReverseMap();
+        
         CreateMap<Name, NameDto>()
             .ReverseMap();
         

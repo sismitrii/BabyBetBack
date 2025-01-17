@@ -38,9 +38,7 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
 
     public async Task<BetDto> FindByIdAsync(Guid betId)
     {
-        var bet = await unitOfWork.BetRepository.FindByIdAsync(betId);
-        
-        if (bet == null)
+        var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
             throw new Exception($"Bet with id {betId} does not exist"); //TODO configure exception
         
         var betDto = mapper.Map<BetDto>(bet);

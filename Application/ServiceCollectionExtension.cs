@@ -15,6 +15,7 @@ public static class ServiceCollectionExtension
         builder.Services.AddAutoMapper(typeof(ApplicationProfile));
         builder.Services.AddScoped<IValidator<CreateUserBetRequest>, CreateUserBetRequestValidator>();
         builder.Services.AddTransient<IBetService, BetService>();
+        builder.Services.AddTransient<IBetGameService, BetGameService>();
         builder.Services.AddTransient<IStatsService, StatsService>();
     }
 }
