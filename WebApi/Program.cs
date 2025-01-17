@@ -30,13 +30,14 @@ builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS");
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularLocalhost",
         policy =>
         {
             // DO NOT TOUCH Except for deployment
-            policy.WithOrigins("https://baby-bet.vercel.app")
+            policy.WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();

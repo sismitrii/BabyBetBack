@@ -3,6 +3,7 @@ using System;
 using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(BetDbContext))]
-    partial class BetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117090015_AlterTable_Bet_AddColumn_CreatedAt")]
+    partial class AlterTable_Bet_AddColumn_CreatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -36,7 +39,9 @@ namespace DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue(new DateTime(2025, 1, 17, 10, 0, 14, 797, DateTimeKind.Local).AddTicks(9750));
 
                     b.Property<int>("Gender")
                         .HasColumnType("INTEGER");

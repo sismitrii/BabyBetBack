@@ -13,4 +13,5 @@ public class Bet : BaseEntity
     public string? AdditionalMessage { get; set; }
     public required string NameByUser { get; set; }
     public required User User { get; set; }
+    public required DateTime CreatedAt { get; set; } = DateTime.Now;
 }
