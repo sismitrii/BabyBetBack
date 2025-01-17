@@ -28,6 +28,7 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
         
         var bet = mapper.Map<Bet>(betRequest);
         bet.User = user;
+        bet.CreatedAt = DateTime.Now;
 
         betGame.Bets.Add(bet);
         await unitOfWork.SaveChangesAsync();
