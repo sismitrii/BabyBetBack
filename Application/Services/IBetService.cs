@@ -13,6 +13,7 @@ public interface IBetService
     Task<IEnumerable<BetDto>> GetAllForAGameAsync(Guid betGameId);
 
     Task<IEnumerable<BetGame>> GetUser();
-    
+
+    Task UpdateAsync(Guid betId, UpdateUserBetRequest betDto);
     Task DeleteAsync(Guid betId);
 }

@@ -1,4 +1,5 @@
 using Application.Dtos;
+using Application.Dtos.Common;
 using Application.Dtos.In;
 using Application.Dtos.Out;
 using AutoMapper;
@@ -69,6 +70,40 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
     public async Task<IEnumerable<BetGame>> GetUser()
     {
         return await unitOfWork.BetGameRepository.GetAllAsync();
+    }
+
+    public async Task UpdateAsync(Guid betId, UpdateUserBetRequest request)
+    {
+        var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
+                  throw new Exception($"Bet with id {betId} does not exist");
+        
+        if (request.Gender.HasValue)
+            bet.Gender = request.Gender.Value;
+        
+        if(request.BirthDate.HasValue)
+            bet.BirthDate = request.BirthDate.Value;
+        
+        if (request.BirthTime.HasValue)
+            bet.BirthTime = request.BirthTime.Value;
+        
+        if (request.Size.HasValue)
+            bet.Size = request.Size.Value;
+
+        if (request.Weight.HasValue)
+            bet.Weight = request.Weight.Value;
+
+        if (!string.IsNullOrWhiteSpace(request.NameByUser))
+            bet.NameByUser = request.NameByUser;
+        
+        if (!string.IsNullOrWhiteSpace(request.AdditionalMessage))
+            bet.AdditionalMessage = request.AdditionalMessage;
+
+        if (request.Names?.Any() == true)
+            bet.Names = request.Names
+                .Select(mapper.Map<Name>)
+                .ToList();
+
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid betId)
