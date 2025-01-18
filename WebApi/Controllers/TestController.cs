@@ -1,11 +1,17 @@
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace BabyBetBack.Controllers;
 
 [ApiController]
+[Authorize]
 public class TestController(IBetService betService) :ControllerBase
 {
+    
+    private readonly string _dataFolderPath = "/app/data";
+
     [HttpGet]
     [Route("test")]
     public async Task<IActionResult> Test()
@@ -24,21 +30,20 @@ public class TestController(IBetService betService) :ControllerBase
     [HttpGet("contents")]
     public IActionResult GetDataFolderContents()
     {
-        var dataFolderPath = "/app/data";
         try
         {
-            if (!Directory.Exists(dataFolderPath))
+            if (!Directory.Exists(_dataFolderPath))
             {
-                return NotFound(new { message = $"Le dossier '{dataFolderPath}' n'existe pas." });
+                return NotFound(new { message = $"Le dossier '{_dataFolderPath}' n'existe pas." });
             }
 
-            var directoryInfo = new DirectoryInfo(dataFolderPath);
+            var directoryInfo = new DirectoryInfo(_dataFolderPath);
             var files = directoryInfo.GetFiles();
             var directories = directoryInfo.GetDirectories();
 
             var result = new
             {
-                Path = dataFolderPath,
+                Path = _dataFolderPath,
                 Files = files.Select(f => new { f.Name, f.Length, f.CreationTime }),
                 Directories = directories.Select(d => new { d.Name, d.CreationTime })
             };
@@ -50,4 +55,22 @@ public class TestController(IBetService betService) :ControllerBase
             return StatusCode(500, new { message = "Une erreur s'est produite lors de la lecture du dossier.", error = ex.Message });
         }
     }
+    
+    [HttpGet("download")]
+    public IActionResult DownloadDatabase()
+    {
+        if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
+            return Forbid();
+        
+        var sqliteDb = Path.Combine(_dataFolderPath, "sqlite.db");
+
+        if (!System.IO.File.Exists(sqliteDb))
+            return NotFound("Le fichier de base de données n'existe pas.");
+
+        var fileBytes = System.IO.File.ReadAllBytes(sqliteDb);
+        var fileName = "sqlite.db";
+        return File(fileBytes, "application/octet-stream", fileName);
+    }
+    
+    
 }
