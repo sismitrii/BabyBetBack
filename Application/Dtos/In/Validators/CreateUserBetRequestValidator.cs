@@ -26,7 +26,7 @@ public class CreateUserBetRequestValidator : AbstractValidator<CreateUserBetRequ
 
         RuleFor(x => x.Names)
             .NotEmpty().WithMessage("Au moins une prénom est obligatoire")
-            .Must(x => x.Count() <= 3).WithMessage("Impossible de séléctionner plus de 3 prénoms");
+            .Must(x => x.Count() <= 5).WithMessage("Impossible de séléctionner plus de 5 prénoms");
         
     }
 }
