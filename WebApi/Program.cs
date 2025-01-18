@@ -83,8 +83,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddIdentity<User, Role>(options =>
     {
+        
         options.Password.RequiredLength = 8;
-
         options.Lockout.AllowedForNewUsers = true;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
         options.Lockout.MaxFailedAccessAttempts = 3;
