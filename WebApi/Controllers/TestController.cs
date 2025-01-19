@@ -73,7 +73,7 @@ public class TestController(IBetService betService) :ControllerBase
     }
     
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadDatabase([FromForm] IFormFile file)
+    public async Task<IActionResult> UploadDatabase(IFormFile file)
     {
         if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
             return Forbid();
@@ -82,22 +82,22 @@ public class TestController(IBetService betService) :ControllerBase
         
         if (file == null || file.Length == 0)
             return BadRequest("Please provide a file.");
-
+    
         if (!file.FileName.EndsWith(".db", StringComparison.OrdinalIgnoreCase))
             return BadRequest("File must be a Sqlite Db (.db).");
-
+    
         var tempPath = Path.Combine(Path.GetTempPath(), file.FileName);
-
+    
         await using (var stream = new FileStream(tempPath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }
-
+    
         if (System.IO.File.Exists(sqliteDb))
             System.IO.File.Delete(sqliteDb);
-
+    
         System.IO.File.Move(tempPath, sqliteDb);
-
+    
         return Ok("Base db replace successfully");
     }
 }
