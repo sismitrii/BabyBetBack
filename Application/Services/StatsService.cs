@@ -71,8 +71,9 @@ public class StatsService(IUnitOfWork unitOfWork) : IStatsService
             {
                 Size = g.Key,
                 Count = g.Count(),
-                Percentage = g.Count() *1.0 /bets.Count *1.0 * 100.0
+                Percentage = Math.Round(g.Count() *1.0 /bets.Count *1.0 * 100.0)
             })
+            .OrderBy(x => x.Size)
             .ToList();
     }
     
@@ -83,8 +84,9 @@ public class StatsService(IUnitOfWork unitOfWork) : IStatsService
             {
                 Weight = g.Key,
                 Count = g.Count(),
-                Percentage = g.Count() *1.0 /bets.Count *1.0 * 100.0
+                Percentage = Math.Round(g.Count() *1.0 /bets.Count *1.0 * 100.0)
             })
+            .OrderBy(x => x.Weight)
             .ToList();    
     }
     
