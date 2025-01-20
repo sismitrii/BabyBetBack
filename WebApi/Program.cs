@@ -1,5 +1,3 @@
-using BabyBetBack.Auth;
-using BabyBetBack.Configuration;
 using DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Application;
+using Application.Configuration;
+using Application.Services.Auth;
 using Core.Entities;
 using Microsoft.OpenApi.Models;
 
@@ -21,12 +21,11 @@ if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://*:" + port);
 }
 
-
 builder.Services.AddHealthChecks();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
-    // serialize enums as strings in api responses (e.g. Role)
+    // serialize enums as strings in api responses (ex : Gender)
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
@@ -36,7 +35,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularLocalhost",
         policy =>
         {
-            // DO NOT TOUCH Except for deployment
+            // DO NOT TOUCH
             policy.WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
@@ -54,7 +53,6 @@ builder.Services.AddSwaggerGen(options =>
      Version = "v1"
  });
 
- // Ajouter la configuration pour le Bearer Token
  options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
  {
      Name = "Authorization",
@@ -76,14 +74,14 @@ builder.Services.AddSwaggerGen(options =>
                  Id = "Bearer"
              }
          },
-         new string[] {"Bearer"}
+         ["Bearer"]
      }
  });
 });
 
 builder.Services.AddIdentity<User, Role>(options =>
     {
-        
+        options.SignIn.RequireConfirmedEmail = true; 
         options.Password.RequiredLength = 8;
         options.Lockout.AllowedForNewUsers = true;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
@@ -98,8 +96,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 });
 
 builder.Services.AddTransient<DbContext, BetDbContext>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();

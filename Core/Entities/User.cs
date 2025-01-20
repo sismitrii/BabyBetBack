@@ -8,7 +8,7 @@ namespace Core.Entities;
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string ProfilePicture { get; set; }
+        public string? ProfilePicture { get; set; }
 
         [NotMapped]
         public string FullName

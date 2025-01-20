@@ -1,30 +1,74 @@
-using Application.Services;
-using BabyBetBack.Auth;
-using BabyBetBack.Configuration;
-using BabyBetBack.Utils;
-using log4net;
+using Application.Configuration;
+using Application.Dtos.In;
+using Application.Exceptions;
+using Application.Services.Auth;
+using Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace BabyBetBack.Controllers;
 
 [ApiController]
+[Route("api/auth")]
 public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig> googleAuthConfig) : BaseController
 {
-    private readonly IAuthService _authService = authService;
     [HttpPost]
-    [Route("api/auth")]
+    [Route("googleSignIn")]
     [ProducesResponseType(typeof(BaseResponse<bool>), 200)]
     public async Task<IActionResult> GoogleSignIn(GoogleSignInVM model)
     {
         try
         {
-            var data = await _authService.SignInWithGoogle(model);
-            return Ok(data.Data);
+            var data = await authService.SignInWithGoogle(model);
+            return Ok(data);
         }
         catch (Exception ex)
         {
             return HandleError(ex);
+        }
+    }
+
+    [HttpPost]
+    [Route("register")]
+    public async Task<IActionResult> Register(RegisterRequest registerRequest)
+    {
+        var responseMessage = await authService.Register(registerRequest);
+        
+        return Ok(responseMessage);
+    }
+
+    [HttpGet]
+    [Route("confirm")]
+    public async Task<IActionResult> Confirm([FromQuery] string email, [FromQuery] string token)
+    {
+        try
+        {
+            await authService.Confirm(email, token);
+            return Redirect("http://localhost:4200");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPost]
+    [Route("login")]
+    public async Task<IActionResult> LoginAsync(LoginRequest loginRequest)
+    {
+        try
+        {
+            var data = await authService.Login(loginRequest);
+
+            return Ok(data);
+        }
+        catch (LoginException e)
+        {
+            return Forbid(e.Message);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
         }
     }
 }

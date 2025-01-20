@@ -1,14 +1,14 @@
-using BabyBetBack.Auth;
+using Application.Services.Auth;
 using Core.Entities;
-using DAL;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Extensions;
 
-namespace BabyBetBack.Extension;
+namespace Application.Extension;
 
 public static class UserManagerExtension
 {
-    public static async Task<User> CreateUserFromSocialLogin(this UserManager<User> userManager, BetDbContext context,
+    public static async Task<User> CreateUserFromSocialLogin(this UserManager<User> userManager, IUnitOfWork unitOfWork,
         CreateUserFromSocialLogin model, LoginProvider loginProvider)
     {
         //CHECKS IF THE USER HAS NOT ALREADY BEEN LINKED TO AN IDENTITY PROVIDER
@@ -35,7 +35,7 @@ public static class UserManagerExtension
             user.EmailConfirmed = true;
 
             await userManager.UpdateAsync(user);
-            await context.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
         }
         
         UserLoginInfo userLoginInfo = null;

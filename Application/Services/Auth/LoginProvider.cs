@@ -1,4 +1,4 @@
-namespace BabyBetBack.Auth;
+namespace Application.Services.Auth;
 
 public enum LoginProvider
 {

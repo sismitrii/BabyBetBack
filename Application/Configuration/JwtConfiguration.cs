@@ -1,4 +1,4 @@
-namespace BabyBetBack.Configuration;
+namespace Application.Configuration;
 
 public class JwtConfiguration
 {

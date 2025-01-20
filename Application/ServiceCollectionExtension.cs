@@ -2,6 +2,7 @@ using Application.Automapper;
 using Application.Dtos.In;
 using Application.Dtos.In.Validators;
 using Application.Services;
+using Application.Services.Auth;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,5 +18,8 @@ public static class ServiceCollectionExtension
         builder.Services.AddTransient<IBetService, BetService>();
         builder.Services.AddTransient<IBetGameService, BetGameService>();
         builder.Services.AddTransient<IStatsService, StatsService>();
+        
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
     }
 }

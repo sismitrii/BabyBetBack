@@ -1,4 +1,4 @@
-namespace BabyBetBack.Utils;
+namespace Application.Utils;
 
 public class BaseResponse<T>
 {
