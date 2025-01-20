@@ -5,7 +5,6 @@ using Application.Configuration;
 using Application.Dtos.In;
 using Application.Dtos.Out;
 using Application.Exceptions;
-using Application.Utils;
 using Core.Entities;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
@@ -41,7 +40,7 @@ public class AuthService(
         return data;
     }
 
-    public async Task<string> Register(RegisterRequest request)
+    public async Task Register(RegisterRequest request)
     {
         var existingUser = await userManager.FindByEmailAsync(request.Email);
         
@@ -66,7 +65,7 @@ public class AuthService(
         var domainName = Environment.GetEnvironmentVariable("DOMAIN_NAME");
         var confirmationLink = $"{domainName}/api/auth/confirm?token={confirmEmailToken}&email={request.Email}";
         
-        return await SendEmail(user.Email, confirmationLink);
+        await SendEmail(user.Email, confirmationLink);
         //TODO Improve confirm message
     }
 
@@ -98,7 +97,7 @@ public class AuthService(
 
     }
 
-    private async Task<string> SendEmail(string email, string confirmationLink)
+    private async Task SendEmail(string email, string confirmationLink)
     {
         var fromEmail = Environment.GetEnvironmentVariable("FROM_EMAIL");
         var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
@@ -111,8 +110,6 @@ public class AuthService(
         var subject = "Confirmez Votre Email";
         var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
         var response = await client.SendEmailAsync(msg).ConfigureAwait(false);
-
-        return response.Body.ToString();
     }
 
     private string CreateJwtToken(User user)

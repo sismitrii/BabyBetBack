@@ -32,9 +32,9 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
     [Route("register")]
     public async Task<IActionResult> Register(RegisterRequest registerRequest)
     {
-        var responseMessage = await authService.Register(registerRequest);
-        
-        return Ok(responseMessage);
+        await authService.Register(registerRequest);
+
+        return Ok(new BaseResponse<string>("Inscription Réussie !"));
     }
 
     [HttpGet]
@@ -44,7 +44,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         try
         {
             await authService.Confirm(email, token);
-            return Redirect("http://localhost:4200");
+            return Redirect("http://localhost:4200/confirm");
         }
         catch (Exception e)
         {
