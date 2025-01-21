@@ -5,6 +5,7 @@ using Application.Configuration;
 using Application.Dtos.In;
 using Application.Dtos.Out;
 using Application.Exceptions;
+using AutoMapper;
 using Core.Entities;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +20,8 @@ namespace Application.Services.Auth;
 public class AuthService(
     IGoogleAuthService googleAuthService,
     UserManager<User> userManager,
-    IOptions<JwtConfiguration> jwtConfig) : IAuthService
+    IOptions<JwtConfiguration> jwtConfig,
+    IMapper mapper) : IAuthService
 {
     private readonly JwtConfiguration _jwtConfig = jwtConfig.Value;
 
@@ -95,6 +97,13 @@ public class AuthService(
         
         return new JwtResponseDto{ Token = jwtResponse};;
 
+    }
+
+    public async Task<UserDto> GetUserData(string userEmail)
+    {
+        var user = await userManager.FindByEmailAsync(userEmail);
+
+        return mapper.Map<UserDto>(user);
     }
 
     private async Task SendEmail(string email, string confirmationLink)

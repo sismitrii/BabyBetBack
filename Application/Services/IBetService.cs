@@ -11,9 +11,7 @@ public interface IBetService
     Task<BetDto> FindByIdAsync(Guid betId);
     Task<BetDto?> FindBetOfUserAsync(string? getNameIdentifierId);
     Task<IEnumerable<BetDto>> GetAllForAGameAsync(Guid betGameId);
-
-    Task<IEnumerable<BetGame>> GetUser();
-
+    
     Task UpdateAsync(Guid betId, UpdateUserBetRequest betDto);
     Task DeleteAsync(Guid betId);
 }

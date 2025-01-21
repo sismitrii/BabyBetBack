@@ -5,6 +5,7 @@ using Application.Services.Auth;
 using Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 
 namespace BabyBetBack.Controllers;
 
@@ -70,5 +71,14 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         {
             return BadRequest(e.Message);
         }
+    }
+
+    [HttpGet]
+    [Route("user-data")]
+    public async Task<IActionResult> UserData()
+    {
+        var userData = await authService.GetUserData(User.GetNameIdentifierId());
+        
+        return Ok(userData);
     }
 }

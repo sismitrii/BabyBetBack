@@ -11,21 +11,6 @@ public class TestController(IBetService betService) :ControllerBase
 {
     
     private readonly string _dataFolderPath = "/app/data";
-
-    [HttpGet]
-    [Route("test")]
-    public async Task<IActionResult> Test()
-    {
-        try
-        {
-            var betGame = await betService.GetUser();
-            return Ok(betGame);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
     
     [HttpGet("contents")]
     public IActionResult GetDataFolderContents()
