@@ -65,7 +65,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         }
         catch (LoginException e)
         {
-            return Forbid(e.Message);
+            return Forbid();
         }
         catch (Exception e)
         {
