@@ -160,6 +160,45 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<BetDbContext>();
     Console.WriteLine(db.Database.GetAppliedMigrationsAsync());
     db.Database.Migrate(); // Applique les migrations si nécessaire
+    
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    string[] roleNames = { "Admin", "User" };
+
+    foreach (var roleName in roleNames)
+    {
+        var roleExists = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExists)
+        {
+            await roleManager.CreateAsync(new Role{Name = roleName});
+        }
+    }
+    
+    var adminUser = await userManager.FindByNameAsync("admin");
+    if (adminUser == null)
+    {
+        adminUser = new User
+        {
+            UserName = "admin",
+            FirstName = "admin",
+            LastName = "admin",
+            Email = "admin@oops.com",
+            EmailConfirmed = true
+            
+        };
+        var createResult = await userManager.CreateAsync(adminUser, "D0nTL3akPl$");
+        if (createResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+        else
+        {
+            Console.WriteLine("Erreur lors de la création de l'utilisateur admin : " +
+                              string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        }
+    }
 }
+
+
 app.Run();
 
