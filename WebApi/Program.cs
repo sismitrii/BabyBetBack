@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Application;
 using Application.Configuration;
-using Application.Services.Auth;
 using Core.Entities;
 using Microsoft.OpenApi.Models;
 
@@ -89,6 +88,8 @@ builder.Services.AddIdentity<User, Role>(options =>
         options.User.RequireUniqueEmail = true;
     }).AddEntityFrameworkStores<BetDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization();
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {

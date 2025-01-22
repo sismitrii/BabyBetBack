@@ -3,9 +3,12 @@ using Application.Dtos.In;
 using Application.Exceptions;
 using Application.Services.Auth;
 using Application.Utils;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
+using LoginRequest = Application.Dtos.In.LoginRequest;
+using RegisterRequest = Application.Dtos.In.RegisterRequest;
 
 namespace BabyBetBack.Controllers;
 
@@ -45,7 +48,8 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         try
         {
             await authService.Confirm(email, token);
-            return Redirect("http://localhost:4200/confirm");
+            var frontDomain = Environment.GetEnvironmentVariable("FRONT_DOMAIN");
+            return Redirect($"{frontDomain}/confirm");
         }
         catch (Exception e)
         {
@@ -80,5 +84,23 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         var userData = await authService.GetUserData(User.GetNameIdentifierId());
         
         return Ok(userData);
+    }
+    
+    [HttpPost]
+    [Route("forgot-password")]
+    public async Task<ActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        await authService.SendForgotPasswordLinkAsync(request);
+
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("reset-password")]
+    public async Task<ActionResult> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        await authService.ResetPasswordAsync(request);
+        
+        return Ok("Mot de passe réinitialisé avec succes !");
     }
 }
