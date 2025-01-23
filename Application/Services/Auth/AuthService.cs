@@ -64,16 +64,23 @@ public class AuthService(
         
         if (!result.Succeeded)
             throw new Exception(result.Errors.First().Description); //TODO custom errors
-        
-        var confirmEmailToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        confirmEmailToken = Uri.EscapeDataString(confirmEmailToken);
-        var domainName = Environment.GetEnvironmentVariable("DOMAIN_NAME");
-        var confirmationLink = $"{domainName}/api/auth/confirm?token={confirmEmailToken}&email={request.Email}";
 
-        var message = $"Pour confirmer votre email veuillez clicker sur ce lien : {confirmationLink}";
-        var subject = "Confirmer mon Email";
-        await SendEmail(user.Email, message, subject);
-        //TODO Improve confirm message
+        try
+        {
+            var confirmEmailToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            confirmEmailToken = Uri.EscapeDataString(confirmEmailToken);
+            var domainName = Environment.GetEnvironmentVariable("DOMAIN_NAME");
+            var confirmationLink = $"{domainName}/api/auth/confirm?token={confirmEmailToken}&email={request.Email}";
+
+            var message = $"Pour confirmer votre email veuillez clicker sur ce lien : {confirmationLink}";
+            var subject = "Confirmer mon Email";
+            await SendEmail(user.Email, message, subject);
+            //TODO Improve confirm message
+        }
+        catch (Exception ex)
+        {
+            await userManager.DeleteAsync(user);
+        }
     }
 
     public async Task Confirm(string email, string token)
@@ -116,7 +123,7 @@ public class AuthService(
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null || !await userManager.IsEmailConfirmedAsync(user))
             return; 
-            
+        
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         token = Uri.EscapeDataString(token);
 
@@ -139,6 +146,13 @@ public class AuthService(
         
         if (!result.Succeeded)
             throw new LoginException("Error resetting password");
+    }
+
+    public async Task DeleteUserAsync(string userEmail)
+    {
+        var user = await userManager.FindByEmailAsync(userEmail) ??
+                   throw new Exception($"User with email {userEmail} does not exist.");
+        await userManager.DeleteAsync(user);
     }
 
     private async Task SendEmail(string email, string message, string subject)

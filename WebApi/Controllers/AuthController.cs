@@ -3,6 +3,7 @@ using Application.Dtos.In;
 using Application.Exceptions;
 using Application.Services.Auth;
 using Application.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -101,6 +102,16 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
     {
         await authService.ResetPasswordAsync(request);
         
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("delete-user")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> DeleteUser(string email)
+    {
+        await authService.DeleteUserAsync(email);
+
         return Ok();
     }
 }
