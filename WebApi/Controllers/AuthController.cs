@@ -101,6 +101,6 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
     {
         await authService.ResetPasswordAsync(request);
         
-        return Ok("Mot de passe réinitialisé avec succes !");
+        return Ok();
     }
 }
