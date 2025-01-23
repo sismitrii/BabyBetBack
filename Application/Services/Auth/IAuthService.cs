@@ -16,4 +16,5 @@ public interface IAuthService
     Task<UserDto> GetUserData(string userEmail);
     Task SendForgotPasswordLinkAsync(ForgotPasswordRequest request);
     Task ResetPasswordAsync(ResetPasswordRequest request);
+    Task DeleteUserAsync(string userEmail);
 }
