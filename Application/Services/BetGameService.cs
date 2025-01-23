@@ -1,4 +1,5 @@
 using Application.Dtos.Out;
+using Application.Exceptions;
 using AutoMapper;
 using Core.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ public class BetGameService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<BetG
     {
         logger.LogDebug($"Searching bet game with id: {betGameId}");
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betGameId) ??
-                      throw new Exception($"No bet game found with this id {betGameId}");
+                      throw new BetGameException($"No bet game found with this id {betGameId}");
         
         var betGameDto = mapper.Map<BetGameDto>(betGame);
         return betGameDto;

@@ -1,4 +1,5 @@
 using Application.Dtos.Out.Stats;
+using Application.Exceptions;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
@@ -13,7 +14,7 @@ public class StatsService(IUnitOfWork unitOfWork, ILogger<StatsService> logger) 
         logger.LogDebug($"Getting stats for bet game {betGameId}");
         
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betGameId) ??
-                      throw new Exception($"No BetGame found with this betGameId : ${betGameId}");
+                      throw new BetGameException($"No BetGame found with this betGameId : ${betGameId}");
         
         var bets = betGame.Bets;
 
