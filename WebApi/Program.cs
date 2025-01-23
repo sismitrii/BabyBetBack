@@ -9,6 +9,7 @@ using Application;
 using Application.Configuration;
 using Core.Entities;
 using Microsoft.OpenApi.Models;
+using NLog.Web;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,9 @@ if (!builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddHealthChecks();
+builder.Logging.ClearProviders();
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+builder.Host.UseNLog();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
@@ -147,12 +151,10 @@ app.UseAuthorization();
 
 
 // Configure the HTTP request pipeline.
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-
 
 app.MapControllers();
 
@@ -199,7 +201,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
 
 app.Run();
 

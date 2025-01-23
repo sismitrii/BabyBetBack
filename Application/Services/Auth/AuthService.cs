@@ -10,6 +10,7 @@ using Core.Entities;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SendGrid;
@@ -24,6 +25,7 @@ public class AuthService(
     IGoogleAuthService googleAuthService,
     UserManager<User> userManager,
     IOptions<JwtConfiguration> jwtConfig,
+    ILogger<AuthService> logger,
     IMapper mapper) : IAuthService
 {
     private readonly JwtConfiguration _jwtConfig = jwtConfig.Value;
@@ -47,10 +49,15 @@ public class AuthService(
 
     public async Task Register(RegisterRequest request)
     {
+        logger.LogDebug($"Register with request : {request}");
         var existingUser = await userManager.FindByEmailAsync(request.Email);
-        
+
         if (existingUser != null)
-            throw new Exception("An account already exists with this email.");
+        {
+            var errorMessage = $"An account already exists with this email : {request.Email}.";
+            logger.LogError(errorMessage);
+            throw new Exception(errorMessage);
+        }
 
         var user = new User
         {
@@ -60,10 +67,14 @@ public class AuthService(
             LastName = request.LastName,
         };
         
+        logger.LogInformation($"User to be created : {user}");
         var result = await userManager.CreateAsync(user, request.Password);
-        
+
         if (!result.Succeeded)
+        {
+            logger.LogError($"Failed to create user: {result.Errors.FirstOrDefault()?.Description}");
             throw new Exception(result.Errors.First().Description); //TODO custom errors
+        }
 
         try
         {
@@ -79,7 +90,9 @@ public class AuthService(
         }
         catch (Exception ex)
         {
+            logger.LogError($"Failed to send email: {ex.Message}");
             await userManager.DeleteAsync(user);
+            throw;
         }
     }
 
