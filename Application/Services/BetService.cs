@@ -1,15 +1,18 @@
-using Application.Dtos;
-using Application.Dtos.Common;
 using Application.Dtos.In;
 using Application.Dtos.Out;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
-public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestValidator, IMapper mapper, IUnitOfWork unitOfWork)
+public class BetService(
+    IValidator<CreateUserBetRequest> createUserBetRequestValidator,
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    ILogger<BetService> logger)
     : IBetService
 {
     public async Task<BetDto> CreateBetAsync(CreateUserBetRequest betRequest, string? userIdentifier)
@@ -34,6 +37,8 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
         betGame.Bets.Add(bet);
         await unitOfWork.SaveChangesAsync();
         
+        logger.LogDebug($"New bet added to Bet Game '{betGame.Name}' : {bet}");
+        
         var betDto = mapper.Map<BetDto>(bet);
         return betDto;
     }
@@ -43,6 +48,7 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
         var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
             throw new Exception($"Bet with id {betId} does not exist"); //TODO configure exception
         
+        logger.LogDebug($"Bet with id {betId} found : {bet}");
         var betDto = mapper.Map<BetDto>(bet);
         return betDto;
     }
@@ -54,12 +60,15 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
         
         var bet = await unitOfWork.BetRepository.FindByUserIdentifier(getNameIdentifierId);
         
+        logger.LogDebug($"Bet for user '{getNameIdentifierId}' found : {bet}");
+        
         var betDto = mapper.Map<BetDto>(bet);
         return betDto;
     }
 
     public async Task<IEnumerable<BetDto>> GetAllForAGameAsync(Guid betGameId)
     {
+        logger.LogDebug($"Getting all bets for {betGameId}");
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betGameId) ?? 
                       throw new Exception($"No BetGame found with id {betGameId}");
         
@@ -69,6 +78,7 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
 
     public async Task UpdateAsync(Guid betId, UpdateUserBetRequest request)
     {
+        logger.LogDebug($"Updating bet with id {betId}");
         var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
                   throw new Exception($"Bet with id {betId} does not exist");
         
@@ -98,12 +108,15 @@ public class BetService(IValidator<CreateUserBetRequest> createUserBetRequestVal
                 .Select(mapper.Map<Name>)
                 .ToList();
 
+        logger.LogDebug($"Updated bet before saving {bet}");
         await unitOfWork.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid betId)
     {
+        logger.LogDebug($"Deleting bet with id {betId}");
         await unitOfWork.BetRepository.DeleteByIdAsync(betId);
         await unitOfWork.SaveChangesAsync();
+        logger.LogDebug($"Bet with id {betId} deleted");
     }
 }
