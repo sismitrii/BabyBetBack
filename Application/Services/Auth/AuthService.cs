@@ -80,6 +80,7 @@ public class AuthService(
         catch (Exception ex)
         {
             await userManager.DeleteAsync(user);
+            throw;
         }
     }
 
