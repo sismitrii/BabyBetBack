@@ -15,7 +15,7 @@ namespace BabyBetBack.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig> googleAuthConfig) : BaseController
+public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig> googleAuthConfig, ILogger<AuthController> logger) : BaseController
 {
     [HttpPost]
     [Route("googleSignIn")]
@@ -29,6 +29,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, ex.Message);
             return HandleError(ex);
         }
     }

@@ -7,10 +7,20 @@ namespace BabyBetBack.Controllers;
 
 [ApiController]
 [Authorize]
-public class TestController(IBetService betService) :ControllerBase
+public class TestController(IBetService betService, ILogger<TestController> logger) :ControllerBase
 {
     
     private readonly string _dataFolderPath = "/app/data";
+
+    [HttpGet("test/logger")]
+    public IActionResult TestLogger()
+    {
+        logger.LogWarning("test warning");
+        logger.LogInformation("test information");
+        logger.LogDebug("test debug");
+        return Ok();
+    }
+    
     
     [HttpGet("contents")]
     public IActionResult GetDataFolderContents()
@@ -42,11 +52,9 @@ public class TestController(IBetService betService) :ControllerBase
     }
     
     [HttpGet("download")]
+    [Authorize(Roles = "Admin")]
     public IActionResult DownloadDatabase()
     {
-        if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
-            return Forbid();
-        
         var sqliteDb = Path.Combine(_dataFolderPath, "sqlite.db");
 
         if (!System.IO.File.Exists(sqliteDb))
@@ -58,6 +66,7 @@ public class TestController(IBetService betService) :ControllerBase
     }
     
     [HttpPost("upload")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UploadDatabase(IFormFile file)
     {
         if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
