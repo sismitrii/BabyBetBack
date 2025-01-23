@@ -135,7 +135,6 @@ public class AuthService(
             throw new LoginException($"User with email {request.Email} does not exist.");
 
         var token = Uri.UnescapeDataString(request.ResetCode);
-        
         var result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
         
         if (!result.Succeeded)
