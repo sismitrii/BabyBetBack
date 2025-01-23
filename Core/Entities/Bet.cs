@@ -14,4 +14,15 @@ public class Bet : BaseEntity
     public required string NameByUser { get; set; }
     public required User User { get; set; }
     public required DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public override string ToString() =>
+        $"Gender : '{Gender}'\n" +
+        $"BirtDate : {BirthDate}\n" +
+        $"BirthTime : {BirthTime}\n" +
+        $"Size : {Size}\n" +
+        $"Weight : {Weight}" +
+        $"Names : {string.Join(", ", Names.Select(x => x.Value))}" +
+        $"AdditionalMessage : '{AdditionalMessage}'" +
+        $"NameByUser : '{NameByUser}'";
+
 }

@@ -33,9 +33,12 @@ public class AuthService(
     public async Task<JwtResponseDto> SignInWithGoogle(GoogleSignInVM model)
     {
         var response = await googleAuthService.GoogleSignIn(model);
-        
+
         if (response.Errors.Any())
+        {
+            logger.LogError($"Failed to sign in with Google : {string.Join(", ", response.Errors)}" );
             throw new LoginException("Failed to sign in with Google");
+        }
 
         var jwtResponse = await CreateJwtTokenAsync(response.Data);
 
@@ -103,9 +106,12 @@ public class AuthService(
         
         var result = await userManager.ConfirmEmailAsync(user, token) ??
                      throw new Exception($"Fail to confirm email {email}.");
-        
+
         if (result.Errors.Any())
+        {
+            logger.LogError($"Error happened confirming email : {string.Join(", ", result.Errors.Select(x => x.Description))}");
             throw new Exception(result.Errors.First().Description); // TODO Better exception pls
+        }
     }
 
     public async Task<JwtResponseDto> Login(LoginRequest request)
@@ -126,6 +132,7 @@ public class AuthService(
 
     public async Task<UserDto> GetUserData(string userEmail)
     {
+        logger.LogDebug($"Get user data : {userEmail}");
         var user = await userManager.FindByEmailAsync(userEmail);
 
         return mapper.Map<UserDto>(user);
@@ -133,9 +140,14 @@ public class AuthService(
 
     public async Task SendForgotPasswordLinkAsync(ForgotPasswordRequest request)
     {
+        logger.LogDebug($"Send Forgot Password link : {request.Email}");
+        
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null || !await userManager.IsEmailConfirmedAsync(user))
+        {
+            logger.LogWarning($"Request for email : {request.Email} have been send but this user is not existing.");
             return; 
+        }
         
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         token = Uri.EscapeDataString(token);
@@ -150,6 +162,7 @@ public class AuthService(
 
     public async Task ResetPasswordAsync(ResetPasswordRequest request)
     {
+        logger.LogDebug($"Reset Password for {request.Email}");
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
             throw new LoginException($"User with email {request.Email} does not exist.");
@@ -163,13 +176,24 @@ public class AuthService(
 
     public async Task DeleteUserAsync(string userEmail)
     {
+        logger.LogDebug($"Start - Delete user : {userEmail}");
         var user = await userManager.FindByEmailAsync(userEmail) ??
                    throw new Exception($"User with email {userEmail} does not exist.");
-        await userManager.DeleteAsync(user);
+        
+        var result = await userManager.DeleteAsync(user);
+
+        if (result.Succeeded)
+            logger.LogDebug($"User {userEmail} has been deleted");
+        else
+        {
+            logger.LogError($"Failed to delete user {userEmail}");
+            throw new LoginException($"Failed to delete user {userEmail}");
+        }
     }
 
     private async Task SendEmail(string email, string message, string subject)
     {
+        logger.LogDebug($"Send email to '{email}' with subject : '{subject}' and message :'{message}'");
         var fromEmail = Environment.GetEnvironmentVariable("FROM_EMAIL");
         var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
 
@@ -186,7 +210,6 @@ public class AuthService(
 
     private async Task<string> CreateJwtTokenAsync(User user)
     { 
-
         var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
         var key = Encoding.ASCII.GetBytes(secret);
 
@@ -219,7 +242,6 @@ public class AuthService(
         };
         
         userClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-        
 
         return userClaims;
     }

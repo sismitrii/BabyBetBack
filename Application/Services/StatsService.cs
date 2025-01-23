@@ -2,13 +2,16 @@ using Application.Dtos.Out.Stats;
 using Core.Entities;
 using Core.Enum;
 using Core.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
-public class StatsService(IUnitOfWork unitOfWork) : IStatsService
+public class StatsService(IUnitOfWork unitOfWork, ILogger<StatsService> logger) : IStatsService
 {
     public async Task<StatsDto?> GetStatsAsync(Guid betGameId)
     {
+        logger.LogDebug($"Getting stats for bet game {betGameId}");
+        
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betGameId) ??
                       throw new Exception($"No BetGame found with this betGameId : ${betGameId}");
         
@@ -16,7 +19,6 @@ public class StatsService(IUnitOfWork unitOfWork) : IStatsService
 
         if (bets.Count == 0)
             return null;
-            
         
         return GenerateStats(bets);
     }
