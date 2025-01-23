@@ -1,5 +1,3 @@
-using BabyBetBack.Auth;
-using BabyBetBack.Configuration;
 using DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Application;
+using Application.Configuration;
 using Core.Entities;
 using Microsoft.OpenApi.Models;
 
@@ -21,12 +20,11 @@ if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://*:" + port);
 }
 
-
 builder.Services.AddHealthChecks();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
-    // serialize enums as strings in api responses (e.g. Role)
+    // serialize enums as strings in api responses (ex : Gender)
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
@@ -36,7 +34,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularLocalhost",
         policy =>
         {
-            // DO NOT TOUCH Except for deployment
+            // DO NOT TOUCH
             policy.WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
@@ -54,7 +52,6 @@ builder.Services.AddSwaggerGen(options =>
      Version = "v1"
  });
 
- // Ajouter la configuration pour le Bearer Token
  options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
  {
      Name = "Authorization",
@@ -76,14 +73,14 @@ builder.Services.AddSwaggerGen(options =>
                  Id = "Bearer"
              }
          },
-         new string[] {"Bearer"}
+         ["Bearer"]
      }
  });
 });
 
 builder.Services.AddIdentity<User, Role>(options =>
     {
-        
+        options.SignIn.RequireConfirmedEmail = true; 
         options.Password.RequiredLength = 8;
         options.Lockout.AllowedForNewUsers = true;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
@@ -92,14 +89,14 @@ builder.Services.AddIdentity<User, Role>(options =>
     }).AddEntityFrameworkStores<BetDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthorization();
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromHours(24);
 });
 
 builder.Services.AddTransient<DbContext, BetDbContext>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
@@ -164,6 +161,45 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<BetDbContext>();
     Console.WriteLine(db.Database.GetAppliedMigrationsAsync());
     db.Database.Migrate(); // Applique les migrations si nécessaire
+    
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    string[] roleNames = { "Admin", "User" };
+
+    foreach (var roleName in roleNames)
+    {
+        var roleExists = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExists)
+        {
+            await roleManager.CreateAsync(new Role{Name = roleName});
+        }
+    }
+    
+    var adminUser = await userManager.FindByNameAsync("admin");
+    if (adminUser == null)
+    {
+        adminUser = new User
+        {
+            UserName = "admin",
+            FirstName = "admin",
+            LastName = "admin",
+            Email = "admin@oops.com",
+            EmailConfirmed = true
+            
+        };
+        var createResult = await userManager.CreateAsync(adminUser, "D0nTL3akPl$");
+        if (createResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+        else
+        {
+            Console.WriteLine("Erreur lors de la création de l'utilisateur admin : " +
+                              string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        }
+    }
 }
+
+
 app.Run();
 

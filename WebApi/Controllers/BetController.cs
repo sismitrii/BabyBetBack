@@ -2,6 +2,7 @@ using Application.Dtos.In;
 using Application.Dtos.Out;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
@@ -50,31 +51,23 @@ public class BetController(IBetService betService) : ControllerBase
     }
     
     
-    // TODO : Set if user is admin
-    [HttpPost]
+    [HttpDelete]
     [Route("delete/{betId:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteById(Guid betId)
     {
-        if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
-            return Forbid();
-
         await betService.DeleteAsync(betId);
         
         return Ok();
     }
     
-    // TODO : Set if user is admin
     [HttpPut]
     [Route("update/{betId:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> UpdateAsync(Guid betId, UpdateUserBetRequest request)
     {
-        if (User.GetNameIdentifierId() != "floguerin156@gmail.com")
-            return Forbid();
-
         await betService.UpdateAsync(betId, request);
         
         return Ok();
     }
-    
-    
 }

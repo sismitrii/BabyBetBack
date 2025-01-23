@@ -1,8 +1,8 @@
-using BabyBetBack.Utils;
+using Application.Dtos.In;
+using Application.Utils;
 using Core.Entities;
-using DAL;
 
-namespace BabyBetBack.Auth;
+namespace Application.Services.Auth;
 
 public interface IGoogleAuthService
 {

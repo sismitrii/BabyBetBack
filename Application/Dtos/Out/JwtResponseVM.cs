@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BabyBetBack.Auth;
-
-public class JwtResponseVM
+namespace Application.Dtos.Out;
+public class JwtResponseDto
 {
     [Required]
     public required string Token { get; set; }

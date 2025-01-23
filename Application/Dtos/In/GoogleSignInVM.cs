@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BabyBetBack.Auth;
+namespace Application.Dtos.In;
 
 public class GoogleSignInVM
 {

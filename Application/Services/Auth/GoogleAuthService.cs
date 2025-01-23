@@ -1,24 +1,23 @@
-using BabyBetBack.Configuration;
-using BabyBetBack.Extension;
-using BabyBetBack.Utils;
+using Application.Configuration;
+using Application.Dtos.In;
+using Application.Extension;
+using Application.Utils;
 using Core.Entities;
-using DAL;
-using log4net;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
 
-namespace BabyBetBack.Auth;
+namespace Application.Services.Auth;
 
 public class GoogleAuthService(
     UserManager<User> userManager,
-    BetDbContext betDbContext,
+    IUnitOfWork unitOfWork,
     IOptions<GoogleAuthConfig> googleAuthConfig
     )
     : IGoogleAuthService
 {
     private readonly UserManager<User> _userManager = userManager;
-    private readonly BetDbContext _betDbContext = betDbContext;
     private readonly GoogleAuthConfig _googleAuthConfig = googleAuthConfig.Value;
 
     public async Task<BaseResponse<User>> GoogleSignIn(GoogleSignInVM model) // on ne serait peut être pas obligé d'utilisé d'objet
@@ -37,7 +36,7 @@ public class GoogleAuthService(
          return new BaseResponse<User>(null, ["Failed to get a response"]);
      }
 
-     var userToBeCreated = new CreateUserFromSocialLogin()
+     var userToBeCreated = new CreateUserFromSocialLogin
      {
          FirstName = payload.GivenName,
          LastName = payload.FamilyName,
@@ -46,7 +45,7 @@ public class GoogleAuthService(
          LoginProviderSubject = payload.Subject,
      };
      
-     var user = await _userManager.CreateUserFromSocialLogin(_betDbContext, userToBeCreated, LoginProvider.Google);
+     var user = await _userManager.CreateUserFromSocialLogin(unitOfWork, userToBeCreated, LoginProvider.Google);
 
      return user != null ?
          new BaseResponse<User>(user) :
