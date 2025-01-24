@@ -1,23 +1,26 @@
+using Application.Exceptions;
 using Application.Services;
+using Core.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 
 namespace BabyBetBack.Controllers;
 
 [ApiController]
-[Authorize]
-public class TestController(IBetService betService, ILogger<TestController> logger) :ControllerBase
+public class TestController(
+    IBetService betService, 
+    ILogger<TestController> logger,
+    UserManager<User> userManager) :ControllerBase
 {
     
     private readonly string _dataFolderPath = "/app/data";
 
-    [HttpGet("test/logger")]
+    [HttpGet("api/test/exception")]
     public IActionResult TestLogger()
     {
-        logger.LogWarning("test warning");
-        logger.LogInformation("test information");
-        logger.LogDebug("test debug");
+        throw new BetException("Test exception");
         return Ok();
     }
     
@@ -93,5 +96,21 @@ public class TestController(IBetService betService, ILogger<TestController> logg
         System.IO.File.Move(tempPath, sqliteDb);
     
         return Ok("Base db replace successfully");
+    }
+
+    [HttpPost("confirm-email")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UploadDatabase(string email)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        user.EmailConfirmed = true;
+        var result = await userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            return Ok(new { Message = "L'email a été confirmé avec succès." });
+        }
+
+        return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
     }
 }

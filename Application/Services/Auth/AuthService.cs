@@ -37,7 +37,7 @@ public class AuthService(
         if (response.Errors.Any())
         {
             logger.LogError($"Failed to sign in with Google : {string.Join(", ", response.Errors)}" );
-            throw new LoginException("Failed to sign in with Google");
+            throw new AuthException("Failed to sign in with Google");
         }
 
         var jwtResponse = await CreateJwtTokenAsync(response.Data);
@@ -59,7 +59,7 @@ public class AuthService(
         {
             var errorMessage = $"An account already exists with this email : {request.Email}.";
             logger.LogError(errorMessage);
-            throw new Exception(errorMessage);
+            throw new AuthException(errorMessage);
         }
 
         var user = new User
@@ -76,7 +76,7 @@ public class AuthService(
         if (!result.Succeeded)
         {
             logger.LogError($"Failed to create user: {result.Errors.FirstOrDefault()?.Description}");
-            throw new Exception(result.Errors.First().Description); //TODO custom errors
+            throw new AuthException(result.Errors.First().Description); //TODO custom errors
         }
 
         try
@@ -102,15 +102,15 @@ public class AuthService(
     public async Task Confirm(string email, string token)
     {
         var user = await userManager.FindByEmailAsync(email) ??
-                   throw new Exception($"User with email {email} does not exist.");
+                   throw new AuthException($"User with email {email} does not exist.");
         
         var result = await userManager.ConfirmEmailAsync(user, token) ??
-                     throw new Exception($"Fail to confirm email {email}.");
+                     throw new AuthException($"Fail to confirm email {email}.");
 
         if (result.Errors.Any())
         {
             logger.LogError($"Error happened confirming email : {string.Join(", ", result.Errors.Select(x => x.Description))}");
-            throw new Exception(result.Errors.First().Description); // TODO Better exception pls
+            throw new AuthException(result.Errors.First().Description); // TODO Better exception pls
         }
     }
 
@@ -119,7 +119,7 @@ public class AuthService(
         var user = await userManager.FindByEmailAsync(request.Email);
         
         if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
-            throw new LoginException($"Les information de connection sont incorrect");
+            throw new AuthException($"Les information de connection sont incorrect");
         
         if (!await userManager.IsEmailConfirmedAsync(user))
             throw new NotConfirmEmailException("Veuillez confirmer votre email avant de vous connecter.");
@@ -165,20 +165,20 @@ public class AuthService(
         logger.LogDebug($"Reset Password for {request.Email}");
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
-            throw new LoginException($"User with email {request.Email} does not exist.");
+            throw new AuthException($"User with email {request.Email} does not exist.");
 
         var token = Uri.UnescapeDataString(request.ResetCode);
         var result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
         
         if (!result.Succeeded)
-            throw new LoginException("Error resetting password");
+            throw new AuthException("Error resetting password");
     }
 
     public async Task DeleteUserAsync(string userEmail)
     {
         logger.LogDebug($"Start - Delete user : {userEmail}");
         var user = await userManager.FindByEmailAsync(userEmail) ??
-                   throw new Exception($"User with email {userEmail} does not exist.");
+                   throw new AuthException($"User with email {userEmail} does not exist.");
         
         var result = await userManager.DeleteAsync(user);
 
@@ -187,7 +187,7 @@ public class AuthService(
         else
         {
             logger.LogError($"Failed to delete user {userEmail}");
-            throw new LoginException($"Failed to delete user {userEmail}");
+            throw new AuthException($"Failed to delete user {userEmail}");
         }
     }
 

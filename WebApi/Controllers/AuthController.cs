@@ -69,7 +69,7 @@ public class AuthController(IAuthService authService, IOptions<GoogleAuthConfig>
 
             return Ok(data);
         }
-        catch (LoginException e)
+        catch (AuthException e)
         {
             return Forbid();
         }

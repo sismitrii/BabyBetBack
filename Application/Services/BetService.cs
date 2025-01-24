@@ -1,5 +1,6 @@
 using Application.Dtos.In;
 using Application.Dtos.Out;
+using Application.Exceptions;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
@@ -18,15 +19,15 @@ public class BetService(
     public async Task<BetDto> CreateBetAsync(CreateUserBetRequest betRequest, string? userIdentifier)
     {
         var user = await unitOfWork.UserRepository.FindUserByEmailAsync(userIdentifier) ??
-            throw new Exception($"User with email {userIdentifier} does not exist"); // to refacto with a good exception
+            throw new UserNotFoundException($"User with email {userIdentifier} does not exist"); // to refacto with a good exception
 
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betRequest.BetGameId) ??
-            throw new Exception($"BetGame invalid"); // to refacto with a good exception
+            throw new BetGameException($"BetGame invalid"); // to refacto with a good exception
             
         var betForUserAlreadyExisting = await unitOfWork.BetRepository.ExistBetForUserAsync(user);
         
         if (betForUserAlreadyExisting)
-            throw new Exception($"A bet is already existing for this user");
+            throw new BetException($"A bet is already existing for this user");
         
         await createUserBetRequestValidator.ValidateAndThrowAsync(betRequest);
         
@@ -46,7 +47,7 @@ public class BetService(
     public async Task<BetDto> FindByIdAsync(Guid betId)
     {
         var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
-            throw new Exception($"Bet with id {betId} does not exist"); //TODO configure exception
+            throw new BetException($"Bet with id {betId} does not exist"); //TODO configure exception
         
         logger.LogDebug($"Bet with id {betId} found : {bet}");
         var betDto = mapper.Map<BetDto>(bet);
@@ -56,7 +57,7 @@ public class BetService(
     public async Task<BetDto?> FindBetOfUserAsync(string? getNameIdentifierId)
     {
         if (getNameIdentifierId == null)
-            throw new Exception("Name Identifier is mandatory");
+            throw new UserNotFoundException("Name Identifier is mandatory");
         
         var bet = await unitOfWork.BetRepository.FindByUserIdentifier(getNameIdentifierId);
         
@@ -70,7 +71,7 @@ public class BetService(
     {
         logger.LogDebug($"Getting all bets for {betGameId}");
         var betGame = await unitOfWork.BetGameRepository.FindByIdAsync(betGameId) ?? 
-                      throw new Exception($"No BetGame found with id {betGameId}");
+                      throw new BetGameException($"No BetGame found with id {betGameId}");
         
         var betsDto = betGame.Bets.Select(bet => mapper.Map<BetDto>(bet));
         return betsDto;
@@ -80,7 +81,7 @@ public class BetService(
     {
         logger.LogDebug($"Updating bet with id {betId}");
         var bet = await unitOfWork.BetRepository.FindByIdAsync(betId) ??
-                  throw new Exception($"Bet with id {betId} does not exist");
+                  throw new BetException($"Bet with id {betId} does not exist");
         
         if (request.Gender.HasValue)
             bet.Gender = request.Gender.Value;
