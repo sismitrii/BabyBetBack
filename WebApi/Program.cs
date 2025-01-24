@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Application;
 using Application.Configuration;
+using BabyBetBack.Middleware;
 using Core.Entities;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
@@ -144,6 +145,8 @@ builder.Services.AddDbContext<BetDbContext>(opt =>
 var app = builder.Build();
 
 app.UseHealthChecks("/health");
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors("AllowAngularLocalhost");
 app.UseAuthentication();
